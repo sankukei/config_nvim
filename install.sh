@@ -11,6 +11,29 @@ command_exist()
 	command -v "$1" >/dev/null 2>&1
 }
 
+show_progress()
+{
+	
+	local pid=$1
+	local duration=30
+	local elapsed=0
+
+	echo -ne "["
+	while [ps -p "$pid" > /dev/null 2>&1; do
+	    if [ %elapsed -lt $duration ]; then
+        	echo -ne "="
+        	sleep 0.2
+        	elapsed=$((elapsed + 1))
+	    fi
+    	done
+
+	while [ $elapsed -lt $duration ]; do
+        	echo -ne "="
+        	elapsed=$((elapsed + 1))
+    	done
+	echo -e "]"
+}
+
 start_conf()
 {
 	echo "Deleting neovim and all config files"
@@ -38,24 +61,26 @@ start_conf()
 		fi
 	fi
 
+	echo "Cloning packer..."
+
 	command git clone --depth 1 https://github.com/wbthomason/packer.nvim\
-	 ~/.local/share/nvim/site/pack/packer/start/packer.nvim > /dev/null 2>&1
+	 ~/.local/share/nvim/site/pack/packer/start/packer.nvim > /dev/null 2>&1 &
+	show_progress $!
+	wait $pid
 
 	echo "Importing custom configuation..."
-
+#	This is where you put your config https | SSH
 	command git clone https://github.com/sankukei/config_nvim.git\
-	~/.config/nvim > /dev/null 2>&1
+	~/.config/nvim > /dev/null 2>&1 &
+	show_progress $!
+	wait $pid
+
+	echo "Installing plugins... (this can take a few seconds)"
 
 	command nvim --headless -c 'source ~/.config/nvim/lua/core/plugins.lua'\
-		-c 'PackerSync' -c 'autocmd User PackerComplete quitall' > /dev/null 2>&1 
-
-	CMD_PID=$!
-	spin='-\|/'
-	i=0
-	while kill -0 $CMD_PID 2>/dev/null; do
-    		printf "\rRunning PackerSync... %s" "${spin:i++%${#spin}:1}"
-    		sleep 0.1
-	done
+		-c 'PackerSync' -c 'autocmd User PackerComplete quitall' > /dev/null 2>&1 &
+	show_progress $!
+	wait $pid
 
 	echo "All modules installed sucesfully"
 	echo -e "${GREEN}Instalation completed :)${NC}" 
