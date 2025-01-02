@@ -27,11 +27,11 @@ start_conf()
 		echo "Installing Neovim..."
 
 		if command_exist apt; then
-			sudo apt update && sudo apt install -y neovim
+			sudo apt update > /dev/null && sudo apt install -y neovim > /dev/null
 		elif command_exist brew; then
-			brew install neovim
+			brew install neovim > /dev/null
 		elif command_exist pacman; then
-			sudo packman -S meovim --noconfirm
+				sudo packman -S meovim --noconfirm > /dev/null
 		else
         		echo "Could not detect a supported package manager. Please install Neovim manually."
 		exit 1
@@ -39,14 +39,23 @@ start_conf()
 	fi
 
 	command git clone --depth 1 https://github.com/wbthomason/packer.nvim\
-	 ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+	 ~/.local/share/nvim/site/pack/packer/start/packer.nvim > /dev/null 2>&1
 
 	echo "Importing custom configuation..."
 
 	command git clone https://github.com/sankukei/config_nvim.git\
-	~/.config/nvim
+	~/.config/nvim > /dev/null 2>&1
 
-	command nvim --headless -c 'source ~/.config/nvim/lua/core/plugins.lua' -c 'PackerSync' -c 'autocmd User PackerComplete quitall'
+	command nvim --headless -c 'source ~/.config/nvim/lua/core/plugins.lua'\
+		-c 'PackerSync' -c 'autocmd User PackerComplete quitall' > /dev/null 2>&1 
+
+	CMD_PID=$!
+	spin='-\|/'
+	i=0
+	while kill -0 $CMD_PID 2>/dev/null; do
+    		printf "\rRunning PackerSync... %s" "${spin:i++%${#spin}:1}"
+    		sleep 0.1
+	done
 
 	echo "All modules installed sucesfully"
 	echo -e "${GREEN}Instalation completed :)${NC}" 
