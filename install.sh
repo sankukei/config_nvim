@@ -50,7 +50,13 @@ start_conf()
 		echo "Installing Neovim..."
 
 		if command_exist apt; then
-			sudo apt update > /dev/null && sudo apt install -y neovim > /dev/null
+		{
+			curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+			chmod u+x nvim.appimage
+			mkdir neovim && mv nvim.appimage nvim && mv nvim neovim
+			echo 'export PATH="$HOME/neovim:$PATH"' >> ~/.zshrc
+		#	sudo apt update > /dev/null && sudo apt install -y neovim > /dev/null
+		}
 		elif command_exist brew; then
 			brew install neovim > /dev/null
 		elif command_exist pacman; then
