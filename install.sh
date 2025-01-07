@@ -55,6 +55,7 @@ start_conf()
 			chmod u+x nvim.appimage
 			mkdir neovim && mv nvim.appimage nvim && mv nvim neovim
 			echo 'export PATH="$HOME/neovim:$PATH"' >> ~/.zshrc
+			command zsh
 		#	sudo apt update > /dev/null && sudo apt install -y neovim > /dev/null
 		}
 		elif command_exist brew; then
