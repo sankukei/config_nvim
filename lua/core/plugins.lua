@@ -40,4 +40,6 @@ return require('packer').startup(function(use)
   use {
     "williamboman/mason.nvim"
 }
+
+use { 'CRAG666/betterTerm.nvim' }
 end)
