@@ -28,6 +28,15 @@ return require('packer').startup(function(use)
   use_rocks {'lua-resty-http', 'lpeg'}
   use {'iamcco/markdown-preview.nvim', run = 'cd app && yarn install', cmd = 'MarkdownPreview'}
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
+
+  require'nvim-treesitter.configs'.setup {
+  	ensure_installed = { "c" },
+  	highlight = {
+    	enable = true,
+  	},
+  }
+  vim.api.nvim_set_hl(0, "@type.definition", { fg = "#ffaf5f", bold = true })
+
   use { 'glacambre/firenvim', run = function() vim.fn['firenvim#install'](0) end }
   use {
     'lewis6991/gitsigns.nvim', requires = { 'nvim-lua/plenary.nvim' },
